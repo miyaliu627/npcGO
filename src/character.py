@@ -27,7 +27,7 @@ class Character:
         importance_prompt = complete_importance_prompt(content, characters)
         importance_json = chatcompletion(importance_prompt)
         try:
-            importance = memory_json.get("importance")
+            importance = importance_json.get("importance")
         except KeyError:
             return
         
