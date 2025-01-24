@@ -1,21 +1,21 @@
 import heapq
-from src.memory import Memory
-from src.main import ts
-from src.prompts.observe_prompt import complete_observe_prompt
-from src.prompts.importance_prompt import complete_importance_prompt
-from typing import List, String
+from memory import Memory
+from main import ts, openai_client
+from prompts.observe_prompt import complete_observe_prompt
+from prompts.importance_prompt import complete_importance_prompt
+from typing import List
 import openai
 import json
 
 class Character:
-    def __init__(self, name: String, description: String, reflection_score: int, reflection_threshold: int):
+    def __init__(self, name: str, description: str, reflection_score: int, reflection_threshold: int):
         self.name = name
         self.description = description
         self.memories = []
         self.reflection_score = reflection_score
         self.reflection_threshold = reflection_threshold
 
-    def observe(self, top_memories: List[Memory], setting: String) -> Memory:
+    def observe(self, top_memories: List[Memory], setting: str) -> Memory:
         observe_prompt = complete_observe_prompt(setting, self.description, top_memories)
         memory_json = chatcompletion(observe_prompt)
         try:
@@ -32,6 +32,7 @@ class Character:
             return
         
         new_memory = Memory(ts, content, importance, characters)
+        print(f"NEW MEMORY GENERATED for {self.name}: {new_memory}")
         return new_memory
 
     def reflect(self, top_memories: List[Memory]) -> Memory:
@@ -44,8 +45,8 @@ class Character:
         return heapq.nlargest(k, self.memories)
 
 def chatcompletion(prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+    response = openai_client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": prompt},
         ]

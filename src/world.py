@@ -1,11 +1,11 @@
 import heapq
-from src.memory import Memory
-from src.character import Character
-from typing import String, List
+from memory import Memory
+from character import Character
+from typing import List
 from collections import deque
 
 class World:
-    def __init__(self, setting: String, characters: List[Character], memory_stream=deque()):
+    def __init__(self, setting: str, characters: List[Character], memory_stream=deque()):
         self.setting = setting
         self.cycle = 0
         self.memory_stream = memory_stream

@@ -1,4 +1,4 @@
-from src.memory import Memory
+from memory import Memory
 def complete_importance_prompt(content, characters):
     return (
         f"On a scale of 1 to 10, where 1 represents purely mundane events "

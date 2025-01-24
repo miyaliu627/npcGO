@@ -1,5 +1,5 @@
 from typing import List
-from src.memory import Memory
+from memory import Memory
 
 def complete_observe_prompt(setting, character_description, top_memories: List[Memory]):
     return (
@@ -13,5 +13,5 @@ def complete_observe_prompt(setting, character_description, top_memories: List[M
         f"- A detailed description of the new memory.\n"
         f"- A list of characters who share this memory with the main character.\n\n"
         f"Respond in JSON format with the following structure:\n"
-        f"{{'content': 'string', 'characters': ['string']}}"
+        f"{{'content': 'str', 'characters': ['str']}}"
     )

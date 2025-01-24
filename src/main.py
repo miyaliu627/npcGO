@@ -1,10 +1,14 @@
-from src.world import World
+from world import World
 import src.simulations.prisoners_dilemna as simulation
+import openai
 
-global ts
+global tsd
 ts = 0
 max_ts = 20
 k = 20
+
+global openai_client 
+openai_client = OpenAI()
 
 def main():
     world = World(simulation.world_setting, simulation.characters, simulation.initial_memory_stream)
