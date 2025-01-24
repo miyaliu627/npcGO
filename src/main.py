@@ -1,15 +1,15 @@
 from src.world import World
 import src.simulations.prisoners_dilemna as simulation
 
-global cycle
-cycle = 0
-max_cycle = 20
+global ts
+ts = 0
+max_ts = 20
 k = 20
 
 def main():
     world = World(simulation.world_setting, simulation.characters, simulation.initial_memory_stream)
     
-    while cycle < max_cycle:
+    while ts < max_ts:
         if world.memory_stream:
             world.distribute_memory()
 
@@ -23,7 +23,7 @@ def main():
             character.reflection_score += observation.importance
             world.memory_stream.append(observation)
         
-        cycle += 1
+        ts += 1
 
     for character in world.characters:
         decision = character.make_decision()

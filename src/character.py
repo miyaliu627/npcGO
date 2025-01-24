@@ -1,8 +1,11 @@
 import heapq
 from src.memory import Memory
-from src.main import cycle
+from src.main import ts
 from src.prompts.observe_prompt import complete_observe_prompt
+from src.prompts.importance_prompt import complete_importance_prompt
 from typing import List, String
+import openai
+import json
 
 class Character:
     def __init__(self, name: String, description: String, reflection_score: int, reflection_threshold: int):
@@ -13,10 +16,22 @@ class Character:
         self.reflection_threshold = reflection_threshold
 
     def observe(self, top_memories: List[Memory], setting: String) -> Memory:
-        # parse memories into a prompt template
-        complete_observe_prompt(setting, self.description, top_memories)
-        # call llm
-        new_memory = Memory(cycle, )
+        observe_prompt = complete_observe_prompt(setting, self.description, top_memories)
+        memory_json = chatcompletion(observe_prompt)
+        try:
+            content = memory_json.get("content")
+            characters = memory_json.get("characters")
+        except KeyError:
+            return
+        
+        importance_prompt = complete_importance_prompt(content, characters)
+        importance_json = chatcompletion(importance_prompt)
+        try:
+            importance = memory_json.get("importance")
+        except KeyError:
+            return
+        
+        new_memory = Memory(ts, content, importance, characters)
         return new_memory
 
     def reflect(self, top_memories: List[Memory]) -> Memory:
@@ -29,7 +44,15 @@ class Character:
         return heapq.nlargest(k, self.memories)
 
 def chatcompletion(prompt):
-    pass
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "user", "content": prompt},
+        ]
+    )
 
-
-
+    try:
+        json_output = json.loads(response.choices[0].message['content'])
+        return json_output
+    except json.JSONDecodeError:
+        return {}
