@@ -6,3 +6,7 @@ class Memory:
         self.content = content
         self.importance = importance
         self.characters = characters
+
+    def __lt__(self, other):
+        # Comparison logic: memory.ts + memory.importance * 3
+        return (self.ts + self.importance * 3) < (other.ts + other.importance * 3)

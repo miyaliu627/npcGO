@@ -1,5 +1,5 @@
-from src.character import Character
-from src.memory import Memory
+from character import Character
+from memory import Memory
 
 world_setting = (
     "In a bustling city, two criminals, Marcus and Evelyn, are arrested after a failed heist. "
@@ -15,7 +15,6 @@ world_setting = (
 prisoner1 = Character(
     "Marcus", 
     "Marcus is a professional thief who recently became a father to a newborn daughter, Sophia. Marcus wants to leave behind his life of crime to be a better role model and caretaker for his family. He is deeply torn between his loyalty to Evelyn, his longtime partner, and his responsibility to his wife, Clara, and their daughter. Marcus knows that if he remains silent and Evelyn betrays him, he could miss the most important years of his daughter’s life. However, he is extremely loyal and dependable as a partner", 
-    [], 
     0, 
     50,
 )
@@ -23,7 +22,6 @@ prisoner1 = Character(
 prisoner2 = Character(
     "Evelyn", 
     "Evelyn is a brilliant strategist who has always prioritized logic over emotion. She has no family of her own but sees Marcus as more than just a partner—he once saved her life during a dangerous job. She’s aware of Marcus’s growing desire to leave the criminal world, and part of her wonders if his loyalty to her is still strong enough to withstand the pressure of the interrogation.",
-    [],
     0,
     80,
 )

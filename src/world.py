@@ -8,7 +8,7 @@ class World:
     def __init__(self, setting: str, characters: List[Character], memory_stream=deque()):
         self.setting = setting
         self.cycle = 0
-        self.memory_stream = memory_stream
+        self.memory_stream = deque(memory_stream)
         self.characters = {}
         for character in characters:
             self.characters[character.name] = character
@@ -16,7 +16,8 @@ class World:
     def distribute_memory(self) -> None:
         while self.memory_stream:
             memory = self.memory_stream.popleft()
-            for character in memory.characters:
-                if character not in self.characters.keys():
+            for name in memory.characters:
+                if name not in self.characters.keys():
                     continue
-                heapq.heappush(self.characters[character.name].memories, (memory.ts + memory.importance * 3, memory)) # TODO: adjust weight function
+                character = self.characters[name]
+                heapq.heappush(self.characters[character.name].memories, memory) # TODO: adjust weight function
