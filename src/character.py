@@ -1,44 +1,69 @@
 import heapq
-from memory import Memory
+from memory import Memory, Message
 from prompts.observe_prompt import complete_observe_prompt
+from prompts.reflect_prompt import complete_reflect_prompt
 from prompts.importance_prompt import complete_importance_prompt
 from typing import List
 from llm import chatcompletion
 
 class Character:
-    def __init__(self, name: str, description: str, reflection_score: int, reflection_threshold: int):
+    def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
         self.memories = []
-        self.reflection_score = reflection_score
-        self.reflection_threshold = reflection_threshold
+        self.message_count = 0
 
-    def observe(self, top_memories: List[Memory], setting: str, ts: int) -> Memory:
-        observe_prompt = complete_observe_prompt(setting, self.description, top_memories)
-        memory_json = chatcompletion(observe_prompt)
+    def observe(self, top_memories: List[Memory], recent_messages, setting: str) -> Memory:
+        observe_prompt = complete_observe_prompt(setting, self.description, top_memories, recent_messages)
+        message_json = chatcompletion(observe_prompt)
+        if "message" not in message_json or "character" not in message_json:
+            raise KeyError("MESSAGE JSON is missing required keys.")
+
+        message = message_json.get("message")
+        character = message_json.get("character")
+   
+        new_message = Message(character, message)
+        print(f"NEW MESSAGE from {self.name}: {new_message.message}")
+        self.message_count += 1
+        return new_message
+        
+
+    def reflect(self, top_memories: List[Memory], recent_messages, setting: str):
+        if self.message_count <= 5: # TODO: arbitrary p rn
+            return
+        
+        # Generate reflection memory
+        reflect_prompt = complete_reflect_prompt(setting, self.description, top_memories, recent_messages)
+        memory_json = chatcompletion(reflect_prompt)
         if "content" not in memory_json or "characters" not in memory_json:
             raise KeyError("MEMORY JSON is missing required keys.")
 
         content = memory_json.get("content")
         characters = memory_json.get("characters")
-   
+        
+        # Rate importance
         importance_prompt = complete_importance_prompt(content, characters)
         importance_json = chatcompletion(importance_prompt)
         if "importance" not in importance_json:
             raise KeyError("Importance key not found in importance_json.")
-        
         importance = importance_json.get("importance")
-  
-        new_memory = Memory(ts, content, importance, characters)
-        print(f"NEW MEMORY GENERATED for {self.name}: {new_memory}")
-        return new_memory
-
-    def reflect(self, top_memories: List[Memory]) -> Memory:
-        pass
-
-    def make_decision(self, top_memories: List[Memory]) -> Memory:
-        pass
+        
+        new_memory = Memory(content, importance, characters)
+        print(f"NEW MEMORY from {self.name}: {new_memory.content}")
+        self.message_count = 0
+        self.memories.append(new_memory)
 
     def retrieve_top_k_memories(self, k) -> List[Memory]:
         return heapq.nlargest(k, self.memories)
     
+    
+def parse_characters(characters_json):
+    parsed_characters = []
+    for _, character_data in characters_json["characters"].items():
+        parsed = Character(
+            name=character_data["name"],
+            description=character_data["description"]
+        )
+        parsed_characters.append(parsed)
+    
+    return parsed_characters
