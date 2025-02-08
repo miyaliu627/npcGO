@@ -30,7 +30,7 @@ class Character:
 
     def reflect(self, top_memories: List[Memory], recent_messages, setting: str):
         if self.message_count <= 5: # TODO: arbitrary p rn
-            return
+            return {"message": "No reflection yet."}
         
         # Generate reflection memory
         reflect_prompt = complete_reflect_prompt(setting, self.description, top_memories, recent_messages)
@@ -44,14 +44,16 @@ class Character:
         # Rate importance
         importance_prompt = complete_importance_prompt(content, characters)
         importance_json = chatcompletion(importance_prompt)
+        if not isinstance(importance_json, dict):
+            raise ValueError(f"Unexpected response format from chatcompletion: {importance_json}")
         if "importance" not in importance_json:
-            raise KeyError("Importance key not found in importance_json.")
+            raise KeyError(f"Importance key not found in importance_json. Received: {importance_json}")
         importance = importance_json.get("importance")
-        
         new_memory = Memory(content, importance, characters)
         print(f"NEW MEMORY from {self.name}: {new_memory.content}")
         self.message_count = 0
         self.memories.append(new_memory)
+        return new_memory
 
     def retrieve_top_k_memories(self, k) -> List[Memory]:
         return heapq.nlargest(k, self.memories)

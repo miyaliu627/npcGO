@@ -15,16 +15,14 @@ def chatcompletion(prompt, max_retries=2, wait_time=5):
         
             message_content = response.choices[0].message.content
             
-            # if message_content.startswith("```json"):
-            #     message_content = message_content[7:] 
-            # if message_content.endswith("```"):
-            #     message_content = message_content[:-3]
             json_match = re.search(r'\{.*\}', message_content, re.DOTALL)
             if not json_match:
                 print("Error: No valid JSON found in response.")
                 return {}
             
             message_content = json_match.group(0)
+            if "'" in message_content and '"' not in message_content:
+                message_content = message_content.replace("'", '"')
 
             return json.loads(message_content)
         

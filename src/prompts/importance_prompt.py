@@ -2,12 +2,11 @@ from memory import Memory
 
 def complete_importance_prompt(content, characters):
     return (
-        f"On a scale of 1 to 10, where 1 represents purely mundane events "
-        f"(e.g., brushing teeth, making a bed) and 10 represents extremely poignant moments "
-        f"(e.g., a breakup, college acceptance), rate the likely poignancy of the following memory.\n\n"
-        f"Memory Details:\n"
-        f"Content: {content}\n"
-        f"Characters Involved: {characters}\n\n"
-        f"Respond only in JSON format with the following structure:\n"
-        f"{{'importance': int}}"
+        "You are an AI assistant. Your task is to rate the importance of a memory on a scale of 1 to 10. "
+        "A rating of 1 represents a mundane event (e.g., brushing teeth), and 10 represents an extremely important moment (e.g., life-changing event). "
+        "Only return a JSON response in the following format:\n\n"
+        "{'importance': int}\n\n"
+        "Now, evaluate this memory:\n"
+        f"Memory Details:\nContent: {content}\nCharacters Involved: {characters}\n\n"
+        "JSON Output:"
     )
