@@ -24,7 +24,7 @@ def run_world(world_setting, characters_json):
         generate_next(world)
         
             
-def generate_next(world):
+def generate_next(world, user_controlled_character=None):
     """
     1. first, select a random character from world.characters
     2. retrieve top k most recent messages
@@ -35,7 +35,8 @@ def generate_next(world):
     """
     
     # Select random character
-    random_character_name = rand.choice(list(world.characters.keys()))
+    available_characters = [name for name in world.characters.keys() if name != user_controlled_character]
+    random_character_name = rand.choice(available_characters)
     random_character = world.characters[random_character_name]
 
     # Retrieve top k most recent messages from the story
@@ -59,4 +60,4 @@ def generate_next(world):
 
     return random_character_name, new_observation, new_reflection
 
-run_world(harry_world_setting, harry_characters_json)
+# run_world(harry_world_setting, harry_characters_json)
