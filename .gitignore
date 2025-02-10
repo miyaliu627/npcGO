@@ -2,3 +2,4 @@ npcGO
 .env
 __pycache__
 node_modules
+fe/node_modules
