@@ -3,3 +3,5 @@ npcGO
 __pycache__
 node_modules
 fe/node_modules/
+fe/.next/
+src/.venv/
