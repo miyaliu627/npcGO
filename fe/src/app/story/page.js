@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useContext } from "react";
 import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
+import { setWorld, simulateNext } from "../server-functions";
 
 export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
+  const [responseData, setResponseData] = useState({});
   const [dialogue, setDialogue] = useState([
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
@@ -30,6 +32,27 @@ export default function Home() {
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
   ]);
+
+  // setWorld
+  useEffect(() => {
+    const uploadData = async () => {
+      setWorld(configuration);
+    };
+    uploadData();
+  }, []);
+
+  // simulateNext
+  useEffect(() => {
+    const fetchData = async () => {
+      const resData = await simulateNext();
+      setResponseData(resData);
+    };
+
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <div
       style={{
@@ -40,6 +63,7 @@ export default function Home() {
       }}
       className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
     >
+      <span>responseData: {JSON.stringify(responseData)}</span>
       <span>story page</span>
       <Link
         href="/configure-world"
