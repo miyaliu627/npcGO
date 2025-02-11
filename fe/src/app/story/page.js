@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useContext } from "react";
 import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
 import { setWorld, simulateNext } from "../server-functions";
@@ -10,25 +9,6 @@ export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
   const [responseData, setResponseData] = useState({});
   const [dialogue, setDialogue] = useState([
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
     { name: "harry potter", dialogue: "hi", key: uuidv4() },
   ]);
@@ -52,6 +32,22 @@ export default function Home() {
 
     return () => clearInterval(intervalId);
   }, []);
+  const dialogueRef = useRef(null);
+
+  // Auto-scroll to the bottom when new dialogue appears
+  useEffect(() => {
+    if (dialogueRef.current) {
+      dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
+    }
+  }, [dialogue]);
+
+  // Function to add more messages
+  const addDialogue = () => {
+    setDialogue((prevDialogue) => [
+      ...prevDialogue,
+      { name: "harry potter", dialogue: `message ${prevDialogue.length + 1}`, key: uuidv4() },
+    ]);
+  };
 
   return (
     <div
@@ -60,36 +56,74 @@ export default function Home() {
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
+        backgroundColor: "black",
+        color: "white",
+        fontFamily: "'Courier New', Courier, monospace",
+        minHeight: "100vh",
+        padding: "20px",
+        position: "relative",
+        width: "100%",
       }}
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
     >
-      <span>responseData: {JSON.stringify(responseData)}</span>
-      <span>story page</span>
+      {/* Restart Link in Upper Right Corner */}
       <Link
         href="/configure-world"
-        style={{ fontWeight: "bold" }}
-        onClick={() => setConfiguration({ ...configuration, worldConfiguration: textValue })}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          fontWeight: "bold",
+          color: "white",
+          textDecoration: "underline",
+        }}
+        onClick={() => setConfiguration({ ...configuration, worldConfiguration: "" })}
       >
         restart
       </Link>
-      <span>configuration: {JSON.stringify(configuration)}</span>
+
+      {/* Scrollable dialogue area */}
       <div
-        className="overflow-y-auto"
-        style={{ height: 600, width: 1000, flexDirection: "column", display: "flex", justifyContent: "flex-start" }}
+        ref={dialogueRef}
+        style={{
+          height: "600px",
+          width: "1000px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          overflowY: "auto",
+          padding: "10px",
+          border: "0px solid white",
+        }}
       >
         {dialogue.map(({ name, dialogue, key }) => (
           <Dialogue name={name} dialogue={dialogue} key={key} />
         ))}
       </div>
+
+      {/* Button to add new messages for testing */}
+      {/* <button
+        onClick={addDialogue}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          backgroundColor: "white",
+          color: "black",
+          border: "none",
+          cursor: "pointer",
+          fontFamily: "'Courier New', Courier, monospace",
+        }}
+      >
+        Add Message
+      </button> */}
     </div>
   );
 }
 
 function Dialogue({ name, dialogue }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", margin: 10 }}>
-      <span style={{ fontWeight: "bold" }}>{name}</span>
-      <span>{dialogue}</span>
+    <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
+      <span style={{ fontWeight: "bold", color: "white" }}>{name}</span>
+      <span style={{ color: "white" }}>{dialogue}</span>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Plus from "../_graphics/Plus";
@@ -8,29 +8,34 @@ import { ConfigurationContext } from "../configuration-context";
 export default function Home() {
   const [textArray, setTextArray] = useState([{ name: "", description: "", key: uuidv4() }]);
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
+
+  const containerRef = useRef(null);
+  const lastCharacterRef = useRef(null);
+
+  useEffect(() => {
+    if (lastCharacterRef.current) {
+      lastCharacterRef.current.scrollIntoView({ behavior: "smooth", inline: "center" });
+    }
+  }, [textArray]);
+
   const handleNameChange = (newName, key) => {
-    const newTextArray = textArray.map((oldVal) => {
-      if (oldVal.key == key) {
-        return { ...oldVal, name: newName };
-      } else {
-        return oldVal;
-      }
-    });
+    const newTextArray = textArray.map((oldVal) =>
+      oldVal.key === key ? { ...oldVal, name: newName } : oldVal
+    );
     setTextArray(newTextArray);
   };
+
   const handleDescriptionChange = (newDescription, key) => {
-    const newTextArray = textArray.map((oldVal) => {
-      if (oldVal.key == key) {
-        return { ...oldVal, description: newDescription };
-      } else {
-        return oldVal;
-      }
-    });
+    const newTextArray = textArray.map((oldVal) =>
+      oldVal.key === key ? { ...oldVal, description: newDescription } : oldVal
+    );
     setTextArray(newTextArray);
   };
+
   const createNewCharacter = () => {
     setTextArray([...textArray, { name: "", description: "", key: uuidv4() }]);
   };
+
   return (
     <div
       style={{
@@ -38,38 +43,57 @@ export default function Home() {
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
+        backgroundColor: "black",
+        color: "white",
+        fontFamily: "'Courier New', Courier, monospace",
+        minHeight: "100vh",
+        padding: "20px",
       }}
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]"
+      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 pb-20 gap-16 sm:p-20"
     >
-      <div
-        style={{ display: "flex", alignItems: "flex-start", flexDirection: "column" }}
-        className="font-[family-name:var(--font-geist-sans)]"
-      >
+      <div style={{ display: "flex", alignItems: "flex-start", flexDirection: "column" }}>
         <span>configure characters</span>
         <div
+          ref={containerRef}
           className="overflow-x-auto"
-          style={{ height: 330, width: 600, flexDirection: "row", display: "flex", justifyContent: "flex-start" }}
+          style={{
+            height: 330,
+            width: 600,
+            flexDirection: "row",
+            display: "flex",
+            justifyContent: "flex-start",
+            overflowX: "auto",
+            scrollBehavior: "smooth",
+            whiteSpace: "nowrap",
+          }}
         >
-          {textArray.map((val) => {
-            return (
+          {textArray.map((val, index) => (
+            <div
+              key={val.key}
+              ref={index === textArray.length - 1 ? lastCharacterRef : null}
+              style={{ display: "inline-block"}}
+            >
               <CharacterInput
                 name={val.name}
                 description={val.description}
                 characterKey={val.key}
-                key={val.key}
                 handleNameChange={handleNameChange}
                 handleDescriptionChange={handleDescriptionChange}
               />
-            );
-          })}
-          <button onClick={() => createNewCharacter()}>
+            </div>
+          ))}
+          <button onClick={createNewCharacter}>
             <Plus />
           </button>
         </div>
       </div>
       <Link
         href="/story"
-        style={{ fontWeight: "bold" }}
+        style={{
+          fontWeight: "bold",
+          color: "white",
+          textDecoration: "underline",
+        }}
         onClick={() => setConfiguration({ ...configuration, characterConfiguration: textArray })}
       >
         next
@@ -80,18 +104,29 @@ export default function Home() {
 
 function CharacterInput({ name, description, characterKey, handleNameChange, handleDescriptionChange }) {
   return (
-    <div style={{ marginRight: 20 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center", 
+        marginRight: "20px",
+      }}
+    >
       <textarea
         value={name}
         onChange={(e) => handleNameChange(e.target.value, characterKey)}
         placeholder="Enter character name..."
         style={{
           backgroundColor: "black",
-          borderWidth: 1,
+          color: "white",
+          borderWidth: "1px",
           borderColor: "white",
-          padding: 10,
-          width: 500,
-          marginTop: 20,
+          borderRadius: "5px",
+          padding: "10px",
+          width: "500px",
+          height: "45px",
+          marginTop: "20px",
+          fontFamily: "'Courier New', Courier, monospace",
         }}
       />
       <textarea
@@ -100,15 +135,19 @@ function CharacterInput({ name, description, characterKey, handleNameChange, han
         placeholder="Enter character description..."
         style={{
           backgroundColor: "black",
-          borderWidth: 1,
+          color: "white",
+          borderWidth: "1px",
           borderColor: "white",
-          padding: 10,
-          height: 200,
-          width: 500,
-          marginTop: 20,
-          marginBottom: 20,
+          borderRadius: "5px",
+          padding: "10px",
+          height: "200px",
+          width: "500px",
+          marginTop: "10px", 
+          marginBottom: "20px",
+          fontFamily: "'Courier New', Courier, monospace",
         }}
       />
     </div>
   );
 }
+
