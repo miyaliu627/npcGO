@@ -1,9 +1,11 @@
 from character import parse_characters
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from memory import Memory, Message
 from world import World, run_world, generate_next, harry_world_setting, harry_characters_json
 
 app = Flask(__name__)
+CORS(app)
 
 # @app.route('/run_simulation', methods=['POST'])
 # def run_simulation():
@@ -98,4 +100,4 @@ def user_message():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5001)

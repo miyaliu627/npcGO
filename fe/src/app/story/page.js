@@ -8,10 +8,7 @@ import { setWorld, simulateNext } from "../server-functions";
 export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
   const [responseData, setResponseData] = useState({});
-  const [dialogue, setDialogue] = useState([
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-    { name: "harry potter", dialogue: "hi", key: uuidv4() },
-  ]);
+  const [dialogue, setDialogue] = useState([]);
 
   // setWorld
   useEffect(() => {
@@ -21,17 +18,27 @@ export default function Home() {
     uploadData();
   }, []);
 
-  // simulateNext
   useEffect(() => {
     const fetchData = async () => {
       const resData = await simulateNext();
-      setResponseData(resData);
+
+      if (resData && resData.character && resData.new_observation) {
+        // Append new message to dialogue list
+        setDialogue((prevDialogue) => [
+          ...prevDialogue,
+          {
+            name: resData.character, // Character who spoke
+            dialogue: resData.new_observation.message, // Message content
+            key: uuidv4(),
+          },
+        ]);
+      }
     };
 
     const intervalId = setInterval(fetchData, 5000);
-
     return () => clearInterval(intervalId);
   }, []);
+
   const dialogueRef = useRef(null);
 
   // Auto-scroll to the bottom when new dialogue appears
