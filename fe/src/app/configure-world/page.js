@@ -39,7 +39,7 @@ export default function Home() {
             color: "white",
             borderWidth: "1px",
             borderColor: "white",
-            borderRadius: "10px",
+            borderRadius: "5px",
             padding: "10px",
             height: "200px",
             width: "500px",

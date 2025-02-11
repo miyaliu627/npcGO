@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Plus from "../_graphics/Plus";
@@ -8,6 +8,15 @@ import { ConfigurationContext } from "../configuration-context";
 export default function Home() {
   const [textArray, setTextArray] = useState([{ name: "", description: "", key: uuidv4() }]);
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
+
+  const containerRef = useRef(null);
+  const lastCharacterRef = useRef(null);
+
+  useEffect(() => {
+    if (lastCharacterRef.current) {
+      lastCharacterRef.current.scrollIntoView({ behavior: "smooth", inline: "center" });
+    }
+  }, [textArray]);
 
   const handleNameChange = (newName, key) => {
     const newTextArray = textArray.map((oldVal) =>
@@ -45,6 +54,7 @@ export default function Home() {
       <div style={{ display: "flex", alignItems: "flex-start", flexDirection: "column" }}>
         <span>configure characters</span>
         <div
+          ref={containerRef}
           className="overflow-x-auto"
           style={{
             height: 330,
@@ -52,17 +62,25 @@ export default function Home() {
             flexDirection: "row",
             display: "flex",
             justifyContent: "flex-start",
+            overflowX: "auto",
+            scrollBehavior: "smooth",
+            whiteSpace: "nowrap",
           }}
         >
-          {textArray.map((val) => (
-            <CharacterInput
-              name={val.name}
-              description={val.description}
-              characterKey={val.key}
+          {textArray.map((val, index) => (
+            <div
               key={val.key}
-              handleNameChange={handleNameChange}
-              handleDescriptionChange={handleDescriptionChange}
-            />
+              ref={index === textArray.length - 1 ? lastCharacterRef : null}
+              style={{ display: "inline-block"}}
+            >
+              <CharacterInput
+                name={val.name}
+                description={val.description}
+                characterKey={val.key}
+                handleNameChange={handleNameChange}
+                handleDescriptionChange={handleDescriptionChange}
+              />
+            </div>
           ))}
           <button onClick={createNewCharacter}>
             <Plus />
@@ -86,7 +104,14 @@ export default function Home() {
 
 function CharacterInput({ name, description, characterKey, handleNameChange, handleDescriptionChange }) {
   return (
-    <div style={{ marginRight: 20 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center", 
+        marginRight: "20px",
+      }}
+    >
       <textarea
         value={name}
         onChange={(e) => handleNameChange(e.target.value, characterKey)}
@@ -96,7 +121,7 @@ function CharacterInput({ name, description, characterKey, handleNameChange, han
           color: "white",
           borderWidth: "1px",
           borderColor: "white",
-          borderRadius: "10px",
+          borderRadius: "5px",
           padding: "10px",
           width: "500px",
           height: "45px",
@@ -113,11 +138,11 @@ function CharacterInput({ name, description, characterKey, handleNameChange, han
           color: "white",
           borderWidth: "1px",
           borderColor: "white",
-          borderRadius: "10px",
+          borderRadius: "5px",
           padding: "10px",
           height: "200px",
           width: "500px",
-          marginTop: "20px",
+          marginTop: "10px", 
           marginBottom: "20px",
           fontFamily: "'Courier New', Courier, monospace",
         }}
@@ -125,3 +150,4 @@ function CharacterInput({ name, description, characterKey, handleNameChange, han
     </div>
   );
 }
+
