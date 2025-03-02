@@ -47,6 +47,54 @@ def set_world():
         "initial_memories_count": len(current_world.message_stream)
     })
 
+@app.route('/update_world', methods=['POST'])
+def update_world():
+    """
+    Updates the setting attribute of the World.
+    Expects JSON with:
+    - 'new_world_setting': The new world environment.
+    """
+    global current_world
+
+    data = request.json
+    if not data or 'new_world_setting' not in data:
+        return jsonify({"error": "Missing 'new_world_setting'"}), 400
+    
+    if current_world is None:
+        return jsonify({"error": "World is not initialized"}), 500
+    current_world.setting = data['new_world_setting']
+
+    return jsonify({
+        "message": "World setting updated"
+    })
+
+@app.route('/update_characters', methods=['POST'])
+def update_characters():
+    """
+    Updates the characters within the simulation.
+    Expects JSON with:
+    - 'characters_json': List of character data for the characters that are to be updated/added.
+    """
+    global current_world, user_controlled_character
+
+    data = request.json
+    if not data or 'characters_json' not in data:
+        return jsonify({"error": "Missing 'characters_json'"}), 400
+
+    characters_json = data['characters_json']
+    parsed_characters = parse_characters(characters_json)
+
+    for character in parsed_characters:
+        if character.name in current_world.characters:
+            current_world.characters[character.name].description = character.description
+        else:
+            current_world.characters[character.name] = character
+
+    return jsonify({
+        "message": "Characters updated",
+        "characters_count": len(current_world.characters)
+    })
+
 @app.route('/simulate_next', methods=['GET'])
 def simulate_next():
     """
