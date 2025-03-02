@@ -9,12 +9,17 @@ const SIMULATE_NEXT_URL = BASE_URL + "/simulate_next";
 const USER_MESSAGE_URL = BASE_URL + "/user_message";
 
 const transformConfigurationToPayloadFormat = (config) => {
+  const chosenCharacter = config.characterConfiguration.find(
+    (char) => char.key === config.userCharacter
+  );
+
   return {
     world_setting: config.worldConfiguration,
     characters_json: { characters: config.characterConfiguration.reduce((acc, val) => {
       acc[val.name] = { name: val.name, description: val.description };
       return acc;
-    }, {}) }
+    }, {}) },
+    user_character: chosenCharacter ? chosenCharacter.name : null,
   };
 };
 

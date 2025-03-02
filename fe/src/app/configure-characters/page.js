@@ -7,6 +7,7 @@ import { ConfigurationContext } from "../configuration-context";
 
 export default function Home() {
   const [textArray, setTextArray] = useState([{ name: "", description: "", key: uuidv4() }]);
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
 
   const containerRef = useRef(null);
@@ -36,6 +37,10 @@ export default function Home() {
     setTextArray([...textArray, { name: "", description: "", key: uuidv4() }]);
   };
 
+  const handleSelection = (key) => {
+    setSelectedCharacter(prevSelected => prevSelected === key ? null : key);
+  };
+
   return (
     <div
       style={{
@@ -57,7 +62,7 @@ export default function Home() {
           ref={containerRef}
           className="overflow-x-auto"
           style={{
-            height: 330,
+            height: 350,
             width: 600,
             flexDirection: "row",
             display: "flex",
@@ -71,7 +76,7 @@ export default function Home() {
             <div
               key={val.key}
               ref={index === textArray.length - 1 ? lastCharacterRef : null}
-              style={{ display: "inline-block"}}
+              style={{ display: "inline-block" }}
             >
               <CharacterInput
                 name={val.name}
@@ -79,6 +84,8 @@ export default function Home() {
                 characterKey={val.key}
                 handleNameChange={handleNameChange}
                 handleDescriptionChange={handleDescriptionChange}
+                isSelected={selectedCharacter === val.key}
+                onSelect={() => handleSelection(val.key)}
               />
             </div>
           ))}
@@ -94,7 +101,7 @@ export default function Home() {
           color: "white",
           textDecoration: "underline",
         }}
-        onClick={() => setConfiguration({ ...configuration, characterConfiguration: textArray })}
+        onClick={() => setConfiguration({ ...configuration, characterConfiguration: textArray, userCharacter: selectedCharacter })}
       >
         next
       </Link>
@@ -102,7 +109,7 @@ export default function Home() {
   );
 }
 
-function CharacterInput({ name, description, characterKey, handleNameChange, handleDescriptionChange }) {
+function CharacterInput({ name, description, characterKey, handleNameChange, handleDescriptionChange, isSelected, onSelect }) {
   return (
     <div
       style={{
@@ -147,7 +154,19 @@ function CharacterInput({ name, description, characterKey, handleNameChange, han
           fontFamily: "'Courier New', Courier, monospace",
         }}
       />
+      <button
+        onClick={onSelect}
+        style={{
+          backgroundColor: isSelected ? "green" : "gray",
+          color: "white",
+          borderRadius: "20px",
+          padding: "5px 10px",
+          cursor: "pointer",
+          marginTop: "10px",
+        }}
+      >
+        {isSelected ? "This is me!" : "Select as me"}
+      </button>
     </div>
   );
 }
-
