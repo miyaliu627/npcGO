@@ -52,7 +52,7 @@ export async function simulateNext() {
     });
 
     if (!res.ok) {
-      const errorText = await res.text(); // Get response body for more details
+      const errorText = await res.text(); 
       throw new Error(`Failed to simulate next step: ${res.status} ${res.statusText} - ${errorText}`);
     }
 
@@ -63,18 +63,24 @@ export async function simulateNext() {
   }
 }
 
-// export async function userMessage(messageData) {
-//   const res = await fetch(USER_MESSAGE_URL, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(messageData),
-//   });
+export async function userMessage(messageData) {
+  try {
+    const res = await fetch(USER_MESSAGE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(messageData),
+    });
 
-//   if (!res.ok) {
-//     throw new Error(`Failed to send user message: ${res.statusText}`);
-//   }
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Failed to send user message: ${res.statusText}`);
+    }
 
-//   return await res.json();
-// }
+    return await res.json();
+  } catch (error) {
+    console.error("Error in sending user message:", error.message);
+    return { error: error.message }; 
+  }
+}

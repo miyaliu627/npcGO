@@ -5,12 +5,13 @@ import re
 
 client = openai.Client()
 
-def chatcompletion(prompt, max_retries=2, wait_time=5):
+def chatcompletion(prompt, system_prompt="", max_retries=2, wait_time=5):
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}]
             )
         
             message_content = response.choices[0].message.content

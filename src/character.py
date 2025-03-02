@@ -14,8 +14,9 @@ class Character:
         self.message_count = 0
 
     def observe(self, top_memories: List[Memory], recent_messages, setting: str) -> Memory:
-        observe_prompt = complete_observe_prompt(setting, self.description, top_memories, recent_messages)
-        message_json = chatcompletion(observe_prompt)
+        observe_prompt = complete_observe_prompt(setting, self.name, self.description, top_memories, recent_messages)
+        system_prompt = "You are an AI that *never* has a character talk to themselves in a back-and-forth way."
+        message_json = chatcompletion(observe_prompt, system_prompt=system_prompt)
         if "message" not in message_json or "character" not in message_json:
             raise KeyError("MESSAGE JSON is missing required keys.")
 

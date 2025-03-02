@@ -3,43 +3,51 @@ import { useState, useContext, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
-import { setWorld, simulateNext } from "../server-functions";
+import { setWorld, simulateNext, userMessage } from "../server-functions";
 
 export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
-  const [responseData, setResponseData] = useState({});
+  const [userInput, setUserInput] = useState("");
   const [dialogue, setDialogue] = useState([]);
 
-  // setWorld
-  useEffect(() => {
-    const uploadData = async () => {
-      setWorld(configuration);
-    };
-    uploadData();
-  }, []);
+  const intervalRef = useRef(null);
+  const dialogueRef = useRef(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
+      await setWorld(configuration);
+    })();
+  }, [configuration]);
+
+  const startPolling = () => {
+    if (intervalRef.current) return;
+
+    intervalRef.current = setInterval(async () => {
       const resData = await simulateNext();
-
       if (resData && resData.character && resData.new_observation) {
-        // Append new message to dialogue list
         setDialogue((prevDialogue) => [
           ...prevDialogue,
           {
-            name: resData.character, // Character who spoke
-            dialogue: resData.new_observation.message, // Message content
+            name: resData.character,
+            dialogue: resData.new_observation.message,
             key: uuidv4(),
           },
         ]);
       }
-    };
+    }, 10000);
+  };
 
-    const intervalId = setInterval(fetchData, 5000);
-    return () => clearInterval(intervalId);
+  const stopPolling = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    startPolling();
+    return () => stopPolling();
   }, []);
-
-  const dialogueRef = useRef(null);
 
   // Auto-scroll to the bottom when new dialogue appears
   useEffect(() => {
@@ -48,12 +56,33 @@ export default function Home() {
     }
   }, [dialogue]);
 
-  // Function to add more messages
-  const addDialogue = () => {
+  // Handle user input submission
+  const handleSendMessage = async () => {
+    if (!userInput.trim()) return;
+
+    const chosenCharacter = configuration.characterConfiguration.find(
+      (char) => char.key === configuration.userCharacter
+    );
+
+    if (!chosenCharacter) {
+      console.error("Error: Selected character not found!");
+      return;
+    }
+
+    // Show the user's message in the dialogue
     setDialogue((prevDialogue) => [
       ...prevDialogue,
-      { name: "harry potter", dialogue: `message ${prevDialogue.length + 1}`, key: uuidv4() },
+      { name: chosenCharacter.name, dialogue: userInput, key: uuidv4() },
     ]);
+
+    // Send the message to the backend
+    await userMessage({
+      user_character: chosenCharacter.name,
+      message: userInput,
+    });
+
+    setUserInput("");
+    startPolling();
   };
 
   return (
@@ -107,21 +136,56 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Button to add new messages for testing */}
-      {/* <button
-        onClick={addDialogue}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          backgroundColor: "white",
-          color: "black",
-          border: "none",
-          cursor: "pointer",
-          fontFamily: "'Courier New', Courier, monospace",
-        }}
-      >
-        Add Message
-      </button> */}
+      {/* Show input box only if userCharacter is selected */}
+      {configuration.userCharacter && (
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <textarea
+            value={userInput}
+            onFocus={() => {
+              stopPolling();
+            }}
+            onBlur={() => {
+              startPolling();
+            }}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+              stopPolling();
+            }}
+            placeholder="Type your message..."
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              borderWidth: "1px",
+              borderColor: "white",
+              borderRadius: "5px",
+              padding: "10px",
+              width: "500px",
+              height: "60px",
+              fontFamily: "'Courier New', Courier, monospace",
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+          />
+          <button
+            onClick={handleSendMessage}
+            style={{
+              marginTop: "10px",
+              padding: "10px 20px",
+              backgroundColor: "white",
+              color: "black",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "'Courier New', Courier, monospace",
+            }}
+          >
+            Send
+          </button>
+        </div>
+      )}
     </div>
   );
 }
