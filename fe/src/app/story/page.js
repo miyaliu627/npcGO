@@ -5,10 +5,16 @@ import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
 import { setWorld, simulateNext, userMessage } from "../server-functions";
 
+const LOADING_STATES = {
+  waitingForYourResponse: "Waiting for your response...",
+  charactersAreTyping: "Characters are typing...",
+};
+
 export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
   const [userInput, setUserInput] = useState("");
   const [dialogue, setDialogue] = useState([]);
+  const [loadingState, setLoadingState] = useState(LOADING_STATES.notLoading);
 
   const intervalRef = useRef(null);
   const dialogueRef = useRef(null);
@@ -20,6 +26,7 @@ export default function Home() {
   }, [configuration]);
 
   const startPolling = () => {
+    setLoadingState(LOADING_STATES.charactersAreTyping);
     if (intervalRef.current) return;
 
     intervalRef.current = setInterval(async () => {
@@ -134,6 +141,7 @@ export default function Home() {
         {dialogue.map(({ name, dialogue, key }) => (
           <Dialogue name={name} dialogue={dialogue} key={key} />
         ))}
+        <LoadingText loadingTextValue={loadingState} />
       </div>
 
       {/* Show input box only if userCharacter is selected */}
@@ -143,6 +151,7 @@ export default function Home() {
             value={userInput}
             onFocus={() => {
               stopPolling();
+              setLoadingState(LOADING_STATES.waitingForYourResponse);
             }}
             onBlur={() => {
               startPolling();
@@ -150,6 +159,7 @@ export default function Home() {
             onChange={(e) => {
               setUserInput(e.target.value);
               stopPolling();
+              setLoadingState(LOADING_STATES.waitingForYourResponse);
             }}
             placeholder="Type your message..."
             style={{
@@ -195,6 +205,14 @@ function Dialogue({ name, dialogue }) {
     <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
       <span style={{ fontWeight: "bold", color: "white" }}>{name}</span>
       <span style={{ color: "white" }}>{dialogue}</span>
+    </div>
+  );
+}
+
+function LoadingText({ loadingTextValue }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
+      <span style={{ fontWeight: "bold", color: "white" }}>{loadingTextValue}</span>
     </div>
   );
 }
