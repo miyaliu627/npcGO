@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
 import { setWorld, simulateNext, userMessage } from "../server-functions";
+import ConfigurationModal from "./ConfigurationModal";
 
 const LOADING_STATES = {
   waitingForYourResponse: "Waiting for your response...",
@@ -91,7 +92,6 @@ export default function Home() {
     setUserInput("");
     startPolling();
   };
-
   return (
     <div
       style={{
@@ -196,6 +196,7 @@ export default function Home() {
           </button>
         </div>
       )}
+      <ConfigurationModal />
     </div>
   );
 }

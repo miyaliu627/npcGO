@@ -1,15 +1,14 @@
 "use client";
 import { useState, useContext, useEffect, useRef } from "react";
-import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Plus from "../_graphics/Plus";
-import { ConfigurationContext } from "../configuration-context";
 
-export default function Home() {
-  const [textArray, setTextArray] = useState([{ name: "", description: "", key: uuidv4() }]);
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
-  const { configuration, setConfiguration } = useContext(ConfigurationContext);
-
+export default function CharacterConfigurationSection({
+  textArray,
+  setTextArray,
+  selectedCharacter,
+  setSelectedCharacter,
+}) {
   const containerRef = useRef(null);
   const lastCharacterRef = useRef(null);
 
@@ -92,19 +91,6 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <Link
-        href="/story"
-        style={{
-          fontWeight: "bold",
-          color: "white",
-          textDecoration: "underline",
-        }}
-        onClick={() =>
-          setConfiguration({ ...configuration, characterConfiguration: textArray, userCharacter: selectedCharacter })
-        }
-      >
-        next
-      </Link>
     </div>
   );
 }
