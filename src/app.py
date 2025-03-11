@@ -83,16 +83,23 @@ def update_characters():
 
     characters_json = data['characters_json']
     parsed_characters = parse_characters(characters_json)
+    user_character = data.get("user_character")
 
     for character in parsed_characters:
         if character.name in current_world.characters:
             current_world.characters[character.name].description = character.description
         else:
             current_world.characters[character.name] = character
+    
+    if user_character and user_character in current_world.characters:
+        user_controlled_character = user_character
+    else:
+        user_controlled_character = None
 
     return jsonify({
         "message": "Characters updated",
-        "characters_count": len(current_world.characters)
+        "characters_count": len(current_world.characters),
+        "user_controlled_character": user_controlled_character
     })
 
 @app.route('/simulate_next', methods=['GET'])
