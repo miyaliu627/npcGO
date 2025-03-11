@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ConfigurationContext } from "../configuration-context";
 import { v4 as uuidv4 } from "uuid";
 import { setWorld, simulateNext, userMessage } from "../server-functions";
+import ConfigurationModal from "./ConfigurationModal";
 
 const LOADING_STATES = {
   waitingForYourResponse: "Waiting for your response...",
@@ -91,7 +92,6 @@ export default function Home() {
     setUserInput("");
     startPolling();
   };
-
   return (
     <div
       style={{
@@ -146,7 +146,15 @@ export default function Home() {
 
       {/* Show input box only if userCharacter is selected */}
       {configuration.userCharacter && (
-        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div
+          style={{
+            marginTop: "20px",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <textarea
             value={userInput}
             onFocus={() => {
@@ -170,7 +178,7 @@ export default function Home() {
               borderRadius: "5px",
               padding: "10px",
               width: "500px",
-              height: "60px",
+              height: "44px",
               fontFamily: "'Courier New', Courier, monospace",
             }}
             onKeyDown={(e) => {
@@ -183,19 +191,22 @@ export default function Home() {
           <button
             onClick={handleSendMessage}
             style={{
-              marginTop: "10px",
+              marginLeft: "10px",
               padding: "10px 20px",
               backgroundColor: "white",
               color: "black",
               border: "none",
               cursor: "pointer",
               fontFamily: "'Courier New', Courier, monospace",
+              borderRadius: "5px",
             }}
           >
             Send
           </button>
         </div>
       )}
+      <div style={{ height: "10px" }}></div>
+      <ConfigurationModal />
     </div>
   );
 }

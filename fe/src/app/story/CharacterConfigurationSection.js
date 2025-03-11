@@ -1,15 +1,14 @@
 "use client";
 import { useState, useContext, useEffect, useRef } from "react";
-import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import Plus from "../_graphics/Plus";
-import { ConfigurationContext } from "../configuration-context";
 
-export default function Home() {
-  const [textArray, setTextArray] = useState([{ name: "", description: "", key: uuidv4() }]);
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
-  const { configuration, setConfiguration } = useContext(ConfigurationContext);
-
+export default function CharacterConfigurationSection({
+  textArray,
+  setTextArray,
+  selectedCharacter,
+  setSelectedCharacter,
+}) {
   const containerRef = useRef(null);
   const lastCharacterRef = useRef(null);
 
@@ -40,22 +39,9 @@ export default function Home() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        backgroundColor: "black",
-        color: "white",
-        fontFamily: "'Courier New', Courier, monospace",
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 pb-20 gap-16 sm:p-20"
-    >
+    <div style={{}}>
       <div style={{ display: "flex", alignItems: "flex-start", flexDirection: "column" }}>
-        <span>configure characters</span>
+        <span style={{ fontFamily: "'Courier New', Courier, monospace", color: "black" }}>configure characters</span>
         <div
           ref={containerRef}
           className="overflow-x-auto"
@@ -92,19 +78,6 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <Link
-        href="/story"
-        style={{
-          fontWeight: "bold",
-          color: "white",
-          textDecoration: "underline",
-        }}
-        onClick={() =>
-          setConfiguration({ ...configuration, characterConfiguration: textArray, userCharacter: selectedCharacter })
-        }
-      >
-        next
-      </Link>
     </div>
   );
 }
@@ -132,10 +105,10 @@ function CharacterInput({
         onChange={(e) => handleNameChange(e.target.value, characterKey)}
         placeholder="Enter character name..."
         style={{
-          backgroundColor: "black",
-          color: "white",
+          backgroundColor: "white",
+          color: "black",
           borderWidth: "1px",
-          borderColor: "white",
+          borderColor: "black",
           borderRadius: "5px",
           padding: "10px",
           width: "500px",
@@ -149,10 +122,10 @@ function CharacterInput({
         onChange={(e) => handleDescriptionChange(e.target.value, characterKey)}
         placeholder="Enter character description..."
         style={{
-          backgroundColor: "black",
-          color: "white",
+          backgroundColor: "white",
+          color: "black",
           borderWidth: "1px",
-          borderColor: "white",
+          borderColor: "black",
           borderRadius: "5px",
           padding: "10px",
           height: "200px",
