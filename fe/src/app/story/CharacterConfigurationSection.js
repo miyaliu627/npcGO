@@ -39,22 +39,9 @@ export default function CharacterConfigurationSection({
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        backgroundColor: "black",
-        color: "white",
-        fontFamily: "'Courier New', Courier, monospace",
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-      className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 pb-20 gap-16 sm:p-20"
-    >
+    <div style={{}}>
       <div style={{ display: "flex", alignItems: "flex-start", flexDirection: "column" }}>
-        <span>configure characters</span>
+        <span style={{ fontFamily: "'Courier New', Courier, monospace", color: "black" }}>configure characters</span>
         <div
           ref={containerRef}
           className="overflow-x-auto"
@@ -118,10 +105,10 @@ function CharacterInput({
         onChange={(e) => handleNameChange(e.target.value, characterKey)}
         placeholder="Enter character name..."
         style={{
-          backgroundColor: "black",
-          color: "white",
+          backgroundColor: "white",
+          color: "black",
           borderWidth: "1px",
-          borderColor: "white",
+          borderColor: "black",
           borderRadius: "5px",
           padding: "10px",
           width: "500px",
@@ -135,10 +122,10 @@ function CharacterInput({
         onChange={(e) => handleDescriptionChange(e.target.value, characterKey)}
         placeholder="Enter character description..."
         style={{
-          backgroundColor: "black",
-          color: "white",
+          backgroundColor: "white",
+          color: "black",
           borderWidth: "1px",
-          borderColor: "white",
+          borderColor: "black",
           borderRadius: "5px",
           padding: "10px",
           height: "200px",
