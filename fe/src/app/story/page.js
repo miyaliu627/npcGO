@@ -7,8 +7,8 @@ import { setWorld, simulateNext, userMessage } from "../server-functions";
 import ConfigurationModal from "./ConfigurationModal";
 
 const LOADING_STATES = {
-  waitingForYourResponse: "Waiting for your response...",
-  charactersAreTyping: "Characters are typing...",
+  waitingForYourResponse: "Waiting for your response.",
+  charactersAreTyping: "A character is typing.",
 };
 
 export default function Home() {
@@ -223,7 +223,43 @@ function Dialogue({ name, dialogue }) {
 function LoadingText({ loadingTextValue }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-      <span style={{ fontWeight: "bold", color: "white" }}>{loadingTextValue}</span>
+      <span
+        style={{
+          fontWeight: "bold",
+          fontSize: "18px",
+          background: "linear-gradient(90deg, #d3d3d3, #000000, #d3d3d3)",
+          backgroundSize: "300% 100%",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          animation: "gradientAnimation 8s linear infinite",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {loadingTextValue}
+        <span className="dots"></span>
+      </span>
+      <style>
+        {`
+          @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+
+          @keyframes typingDots {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+          }
+
+          .dots::after {
+            display: inline-block;
+            content: "";
+            animation: typingDots 1.5s infinite steps(1);
+          }
+        `}
+      </style>
     </div>
   );
 }
