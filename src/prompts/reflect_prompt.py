@@ -19,6 +19,7 @@ def complete_reflect_prompt(setting, character_description, top_memories: List[M
         "**Instruction:**\n"
         "Reflect on this information and generate the character's thoughts and emotions.\n"
         "Ensure the response follows this **exact** structure in JSON format **without additional text**:\n"
+        "Keep the message less than 50 words.\n"
         "```json\n"
         "{\n"
         '  "content": "<character reflection>",\n'
