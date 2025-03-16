@@ -4,6 +4,8 @@ from flask_cors import CORS
 from memory import Memory, Message
 from world import World, run_world, generate_next, harry_world_setting, harry_characters_json
 from llm import generate_image
+import itertools
+
 
 app = Flask(__name__)
 CORS(app)
@@ -113,13 +115,31 @@ def simulate_next():
     if current_world is None:
         return jsonify({"error": "No world is initialized. Set the world first using /set_world."}), 400
 
+    current_world.cycle += 1
     random_character_name, new_observation, new_reflection = generate_next(current_world, user_controlled_character)
+    image_url = None
+    if current_world.cycle % 5 == 0:  
+        top_messages = list(itertools.islice(current_world.message_stream, max(len(current_world.message_stream) - 5, 0), len(current_world.message_stream)))
+        system_prompt = (
+            "Create a detailed, artistic illustration for a novel that captures the mood, characters, and setting from the conversation below. "
+            "The illustration should be in a cute, graphic novel style with vibrant colors, and it should contain no text or dialogue. "
+            "Focus on visual storytelling elements that convey the atmosphere and emotions of the scene."
+        )        
+        image_description = "\n".join(f"{m.character} said: {m.message}" for m in top_messages)
+        image_url = generate_image(system_prompt + image_description, max_retries=2, wait_time=5)
+        print("Generated image URL")
+
+    reflection_dict = new_reflection.to_dict() if isinstance(new_reflection, Memory) else None
+    if not reflection_dict or reflection_dict.get("message") == "":
+        reflection_dict = None
+    print("new reflection:", reflection_dict)
 
     return jsonify({
         "character": random_character_name,
         "new_observation": new_observation.to_dict() if isinstance(new_observation, Message) else {"message": "No new observation."},
-        "new_reflection": new_reflection.to_dict() if isinstance(new_reflection, Memory) else new_reflection,
-        "total_messages": len(current_world.message_stream)
+        "new_reflection": reflection_dict,
+        "total_messages": len(current_world.message_stream),
+        "image_url": image_url
     })
 
 @app.route('/user_message', methods=['POST'])
@@ -169,15 +189,14 @@ def generate_story_image():
 
     image_description = ""
     for m in top_messages:
-        image_description += m.character + " said: " + m.message + "\n"
+        image_description += f"{m.character} said: {m.message}\n"
 
-    photo_url = generate_image(image_description, system_prompt="", max_retries=2, wait_time=5)
+    photo_url = generate_image(image_description, max_retries=0, wait_time=5)
+
     if not photo_url:
         return jsonify({"error": "Image generation failed."}), 400
 
-    return jsonify({
-        "photo_url": photo_url
-    })
+    return jsonify({"photo_url": photo_url})
 
 
 

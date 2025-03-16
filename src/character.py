@@ -30,8 +30,8 @@ class Character:
         
 
     def reflect(self, top_memories: List[Memory], recent_messages, setting: str):
-        if self.message_count <= 5: # TODO: arbitrary p rn
-            return {"message": "No reflection yet."}
+        if self.message_count < 3: # TODO: arbitrary p rn
+            return {"message": ""}
         
         # Generate reflection memory
         reflect_prompt = complete_reflect_prompt(setting, self.description, top_memories, recent_messages)

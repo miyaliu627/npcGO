@@ -11,11 +11,14 @@ const LOADING_STATES = {
   charactersAreTyping: "A character is typing.",
 };
 
+const GENERATE_STORY_IMAGE_URL = "http://127.0.0.1:5001/generate_story_image"; 
+
 export default function Home() {
   const { configuration, setConfiguration } = useContext(ConfigurationContext);
   const [userInput, setUserInput] = useState("");
   const [dialogue, setDialogue] = useState([]);
   const [loadingState, setLoadingState] = useState(LOADING_STATES.notLoading);
+  const [simulateCount, setSimulateCount] = useState(0); // Track requests to simulateNext
 
   const intervalRef = useRef(null);
   const dialogueRef = useRef(null);
@@ -31,17 +34,7 @@ export default function Home() {
     if (intervalRef.current) return;
 
     intervalRef.current = setInterval(async () => {
-      const resData = await simulateNext();
-      if (resData && resData.character && resData.new_observation) {
-        setDialogue((prevDialogue) => [
-          ...prevDialogue,
-          {
-            name: resData.character,
-            dialogue: resData.new_observation.message,
-            key: uuidv4(),
-          },
-        ]);
-      }
+      await fetchNextDialogue();
     }, 10000);
   };
 
@@ -63,6 +56,39 @@ export default function Home() {
       dialogueRef.current.scrollTop = dialogueRef.current.scrollHeight;
     }
   }, [dialogue]);
+
+  const fetchNextDialogue = async () => {
+    const resData = await simulateNext();
+
+    if (resData && resData.character && resData.new_observation) {
+      setDialogue((prevDialogue) => [
+        ...prevDialogue,
+        {
+          name: resData.character,
+          dialogue: resData.new_observation.message,
+          key: uuidv4(),
+        },
+      ]);
+
+      if (resData.new_reflection) {
+        setDialogue((prevDialogue) => [
+          ...prevDialogue,
+          {
+            reflection: resData.new_reflection.content, // Reflection entry
+            key: uuidv4(),
+          },
+        ]);
+      }
+  
+      // If the response includes an image URL, add it to the conversation
+      if (resData.image_url) {
+        setDialogue((prevDialogue) => [
+          ...prevDialogue,
+          { imageUrl: resData.image_url, key: uuidv4() },
+        ]);
+      }
+    }
+  };
 
   // Handle user input submission
   const handleSendMessage = async () => {
@@ -92,6 +118,7 @@ export default function Home() {
     setUserInput("");
     startPolling();
   };
+
   return (
     <div
       style={{
@@ -138,9 +165,10 @@ export default function Home() {
           border: "0px solid white",
         }}
       >
-        {dialogue.map(({ name, dialogue, key }) => (
-          <Dialogue name={name} dialogue={dialogue} key={key} />
-        ))}
+        {dialogue.map((msg) => {
+          const { key, ...rest } = msg;
+          return <Dialogue key={key} {...rest} />;
+        })}
         <LoadingText loadingTextValue={loadingState} />
       </div>
 
@@ -211,11 +239,35 @@ export default function Home() {
   );
 }
 
-function Dialogue({ name, dialogue }) {
+function Dialogue({ name, dialogue, imageUrl, reflection }) {
+  if (reflection) {
+    return (
+      <div
+        style={{
+          textAlign: "center",
+          fontStyle: "italic",
+          color: "lightgray",
+          width: "33%",
+          margin: "10px auto",
+          padding: "10px",
+        }}
+      >
+        {reflection}
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-      <span style={{ fontWeight: "bold", color: "white" }}>{name}</span>
-      <span style={{ color: "white" }}>{dialogue}</span>
+      {name && <span style={{ fontWeight: "bold", color: "white" }}>{name}</span>}
+      {dialogue && <span style={{ color: "white" }}>{dialogue}</span>}
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt="Generated Story Image"
+          style={{ maxWidth: "100%", borderRadius: "10px", marginTop: "10px" }}
+        />
+      )}
     </div>
   );
 }
