@@ -37,3 +37,26 @@ def chatcompletion(prompt, system_prompt="", max_retries=2, wait_time=5):
             return {}
     print("Max retries exceeded.")
     return {}
+
+
+def generate_image(prompt, max_retries=2, wait_time=5): 
+    for attempt in range(max_retries): 
+        try: 
+            response = client.images.generate( 
+                model="dall-e-3", 
+                prompt=prompt, 
+                size="1024x1024", 
+                quality="standard", 
+                n=1, 
+            ) 
+            return response.data[0].url 
+        except openai.RateLimitError as e: 
+            print(f"RateLimitError: {e}. Retrying in {wait_time} seconds...") 
+            time.sleep(wait_time) 
+        except json.JSONDecodeError: 
+            return None 
+        except Exception as e: 
+            print(f"Error: {e}") 
+            return None 
+        print("Max retries exceeded.") 
+        return None

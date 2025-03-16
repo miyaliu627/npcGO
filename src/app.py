@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from memory import Memory, Message
 from world import World, run_world, generate_next, harry_world_setting, harry_characters_json
+from llm import generate_image
 
 app = Flask(__name__)
 CORS(app)
@@ -152,6 +153,32 @@ def user_message():
         "message_content": user_message_content,
         "total_messages": len(current_world.message_stream)
     })
+
+@app.route('/generate_story_image', methods=['GET'])
+def generate_story_image():
+    global current_world
+
+    top_messages = []
+    k = 0
+    if len(current_world.message_stream) > 0:
+        k = min(len(current_world.message_stream), 5)
+        top_messages = list(current_world.message_stream)[-k:]
+
+    if not top_messages:
+        return jsonify({"error": "Message stream is empty, no available messages to generate images"}), 500
+
+    image_description = ""
+    for m in top_messages:
+        image_description += m.character + " said: " + m.message + "\n"
+
+    photo_url = generate_image(image_description, system_prompt="", max_retries=2, wait_time=5)
+    if not photo_url:
+        return jsonify({"error": "Image generation failed."}), 400
+
+    return jsonify({
+        "photo_url": photo_url
+    })
+
 
 
 if __name__ == '__main__':
