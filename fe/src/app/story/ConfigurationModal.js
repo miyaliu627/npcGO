@@ -49,7 +49,7 @@ export default function ConfigurationModal() {
         onClick={open}
         className="rounded-md bg-black/20 py-2 px-4 text-md font-medium text-white focus:outline-none data-[hover]:bg-black/30 data-[focus]:outline-1 data-[focus]:outline-white"
       >
-        Edit World Configuration
+        Edit Configurations
       </Button>
 
       <Dialog
@@ -61,67 +61,95 @@ export default function ConfigurationModal() {
       >
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <DialogPanel
-              transition
-              // className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
-              className="rounded-xl backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+          <DialogPanel
+            transition
+            className="rounded-xl backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
+            style={{
+              backgroundColor: "white",
+              width: "40vw", 
+              maxWidth: "900px", // Prevent it from getting too wide
+              height: "60vh", // 3/5 of the screen height
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              padding: "30px", // Increase padding for better spacing
+              overflowY: "auto",
+              borderRadius: "12px",
+            }}
+          >
+            <DialogTitle
               style={{
-                backgroundColor: "white",
-                width: 620,
-                paddingLeft: 20,
-                paddingTop: 20,
-                paddingBottom: 20,
-                paddingRight: 0,
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "black",
+                fontSize: "36px",
+                marginBottom: "10px",
               }}
             >
-              {/* <span style={{ color: "black" }}>state</span>
-              <br></br>
-              <br></br>
-              <span style={{ color: "black" }}>configuration context {JSON.stringify(configuration)}</span>
-              <br></br>
-              <br></br>
+              edit configuration
+            </DialogTitle>
 
-              <span style={{ color: "black" }}>worldText {JSON.stringify(worldText)}</span>
-              <br></br>
-              <br></br>
-              <span style={{ color: "black" }}>characterArray {JSON.stringify(characterArray)}</span>
-              <br></br>
-              <br></br>
-              <span style={{ color: "black" }}>selectedCharacter {JSON.stringify(selectedCharacter)}</span>
-              <br></br>
-              <br></br> */}
+            <DialogTitle
+              as="h3"
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "black",
+                fontSize: "20px",
+                marginBottom: "10px",
+              }}
+            >
+              world description
+            </DialogTitle>
 
-              <DialogTitle style={{ fontFamily: "'Courier New', Courier, monospace", color: "black", fontSize: 36 }}>
-                edit configuration
-              </DialogTitle>
-              {/* <span>ConfigurationContext configuration: {JSON.stringify(configuration)}</span> */}
-              <DialogTitle as="h3" style={{ fontFamily: "'Courier New', Courier, monospace", color: "black" }}>
-                world description
-              </DialogTitle>
-              <WorldInput worldText={worldText} setWorldText={setWorldText} />
+            <WorldInput worldText={worldText} setWorldText={setWorldText} />
+
+            <DialogTitle
+              as="h3"
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "black",
+                fontSize: "20px",
+                marginTop: "20px",
+                marginBottom: "10px",
+              }}
+            >
+              configure characters
+            </DialogTitle>
+
+            {/* Wrapping Character Configuration in a Flexbox */}
+            <div
+              style={{
+                display: "flex",
+                gap: "20px",
+                width: "100%",
+                flexWrap: "wrap",
+              }}
+            >
               <CharacterConfigurationSection
                 textArray={characterArray}
                 setTextArray={setCharacterArray}
                 selectedCharacter={selectedCharacter}
                 setSelectedCharacter={setSelectedCharacter}
               />
-              <div className="mt-4">
-                <Button
-                  style={{
-                    fontFamily: "'Courier New', Courier, monospace",
-                    color: "black",
-                    fontSize: 16,
-                    borderColor: "black",
-                    borderWidth: 1,
-                    padding: 5,
-                    borderRadius: 10,
-                  }}
-                  onClick={submitData}
-                >
-                  Save
-                </Button>
-              </div>
-            </DialogPanel>
+            </div>
+
+            {/* Save Button with Margin */}
+            <div className="mt-4" style={{ marginTop: "20px"}}>
+              <Button
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "black",
+                  fontSize: "16px",
+                  borderColor: "black",
+                  borderWidth: "1px",
+                  padding: "10px 15px",
+                  borderRadius: "10px",
+                }}
+                onClick={submitData}
+              >
+                Save
+              </Button>
+            </div>
+          </DialogPanel>
           </div>
         </div>
       </Dialog>
@@ -142,12 +170,14 @@ function WorldInput({ worldText, setWorldText }) {
         borderColor: "black",
         borderRadius: "5px",
         padding: "10px",
-        height: "200px",
-        width: "500px",
-        marginTop: "20px",
+        minHeight: "200px", // Ensures the box does not shrink
+        width: "100%", // Ensures full width
+        resize: "none", // Prevents user resizing from overriding the set height
+        marginTop: "10px",
         marginBottom: "20px",
         fontFamily: "'Courier New', Courier, monospace",
       }}
     />
   );
 }
+
